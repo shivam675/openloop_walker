@@ -1,0 +1,11 @@
+moveit_setup_assistant_config:
+  URDF:
+    package: openloop_ros
+    relative_path: urdf/rex.urdf
+    xacro_args: ""
+  SRDF:
+    relative_path: config/rex.srdf
+  CONFIG:
+    author_name: Shivam Chavan
+    author_email: shivam31199@gmail.com
+    generated_timestamp: 1659971772

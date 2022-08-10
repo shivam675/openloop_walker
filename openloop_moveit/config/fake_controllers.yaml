@@ -1,0 +1,19 @@
+controller_list:
+  - name: fake_main_group_controller
+    type: $(arg fake_execution_type)
+    joints:
+      - motor_front_left_shoulder
+      - motor_front_left_leg
+      - foot_motor_front_left
+      - motor_front_right_shoulder
+      - motor_front_right_leg
+      - foot_motor_front_right
+      - motor_rear_left_shoulder
+      - motor_rear_left_leg
+      - foot_motor_rear_left
+      - motor_rear_right_shoulder
+      - motor_rear_right_leg
+      - foot_motor_rear_right
+initial:  # Define initial robot poses per group
+  - group: main_group
+    pose: ol_home_walking_pose

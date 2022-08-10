@@ -1,0 +1,18 @@
+controller_list:
+  - name: main_group_controller
+    action_ns: follow_joint_trajectory
+    type: FollowJointTrajectory
+    default: True
+    joints:
+      - motor_front_left_shoulder
+      - motor_front_left_leg
+      - foot_motor_front_left
+      - motor_front_right_shoulder
+      - motor_front_right_leg
+      - foot_motor_front_right
+      - motor_rear_left_shoulder
+      - motor_rear_left_leg
+      - foot_motor_rear_left
+      - motor_rear_right_shoulder
+      - motor_rear_right_leg
+      - foot_motor_rear_right

@@ -1,0 +1,7 @@
+<?xml version="1.0"?>
+<launch>
+
+  <include file="$(find openloop_ros)/launch/gazebo_spawn.launch"/>
+  <include file="$(find openloop_ros)/launch/bringup.launch"/>
+
+</launch>
