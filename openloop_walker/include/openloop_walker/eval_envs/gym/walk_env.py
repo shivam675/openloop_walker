@@ -114,7 +114,7 @@ class RexWalkEnv(rex_gym_env.RexGymEnv):
 
         action_max = {
             'ik': 0.4,
-            'ol': 0.1
+            'ol': 0.2
         }
 
         action_dim_map = {
@@ -153,6 +153,7 @@ class RexWalkEnv(rex_gym_env.RexGymEnv):
         step = 0.6
         period = 0.65
         base_x = self._base_x
+        
         if self.backwards:
             step = -.3
             period = .5
@@ -168,6 +169,7 @@ class RexWalkEnv(rex_gym_env.RexGymEnv):
                 self.load_ui = False
         if self._is_debug:
             print(f"Target Position x={self._target_position}, Random assignment: {self._random_pos_target}, Backwards: {self.backwards}")
+        self.current_position_loss = self._target_position
         return self._get_observation()
 
     def setup_ui(self, base_x, step, period):
@@ -352,16 +354,16 @@ class RexWalkEnv(rex_gym_env.RexGymEnv):
             return self.init_pose
         t = self.rex.GetTimeSinceReset()
         self._check_target_position(t)
-        # action = self._signal(t, action)
+        action = self._signal(t, action)
         # if random.choice([True, False]):
         #     action = self._signal(t, action)
         # print(action)
-        changing_dims = np.array([0.0, action[0], action[1],
-                         0.0, action[2], action[3],
-                         0.0, action[4], action[5],
-                         0.0, action[6], action[7]])
+        # changing_dims = np.array([0.0, action[0], action[1],
+        #                  0.0, action[2], action[3],
+        #                  0.0, action[4], action[5],
+        #                  0.0, action[6], action[7]])
                         
-        action = self.init_pose + changing_dims*2
+        # action = self.init_pose + changing_dims
         
         # print(action)
         action = super(RexWalkEnv, self)._transform_action_to_motor_command(action)

@@ -31,6 +31,7 @@ class RexWalkEnv(rex_gym_env.RexGymEnv):
 
     def __init__(self,
                  debug=False,
+                #  debug=True,
                  urdf_version=None,
                  control_time_step=0.005,
                  action_repeat=5,
@@ -49,10 +50,10 @@ class RexWalkEnv(rex_gym_env.RexGymEnv):
                  backwards=False,
                 #  backwards=True,
                  signal_type="ol",
-                 terrain_type="plane",
-                #  terrain_type="random",
-                 terrain_id='plane',
-                #  terrain_id='random',
+                #  terrain_type="plane",
+                 terrain_type="random",
+                #  terrain_id='plane',
+                 terrain_id='random',
                  mark='base'):
         """Initialize the rex alternating legs gym environment.
 
@@ -114,7 +115,7 @@ class RexWalkEnv(rex_gym_env.RexGymEnv):
 
         action_max = {
             'ik': 0.4,
-            'ol': 0.1
+            'ol': 0.2
         }
 
         action_dim_map = {
@@ -157,17 +158,29 @@ class RexWalkEnv(rex_gym_env.RexGymEnv):
             step = -.3
             period = .5
             base_x = .0
-        if not self._target_position or self._random_pos_target:
-            bound = -3 if self.backwards else 3
-            self._target_position = random.uniform(bound//2, bound)
-            self._random_pos_target = True
-            self.current_position_loss = self._target_position
-        if self._is_render and self._signal_type == 'ik':
-            if self.load_ui:
-                self.setup_ui(base_x, step, period)
-                self.load_ui = False
+        # if not self._target_position or self._random_pos_target:
+        #     bound = -3 if self.backwards else 3
+        #     self._target_position = random.uniform(bound//2, bound)
+        #     self._random_pos_target = True
+        #     self.current_position_loss = self._target_position
+        # if self._is_render and self._signal_type == 'ik':
+        #     if self.load_ui:
+        #         self.setup_ui(base_x, step, period)
+        #         self.load_ui = False
+        distance = random.randint(1, 30)
+        self._target_position = distance
+        self.current_position_loss = self._target_position
+        
+        if distance <= 6:
+            self.max_timesteps_allowed = (5500/20)*distance + 350
+        
+        else:
+            self.max_timesteps_allowed = (5500/20)*distance  # for 20 mtrs time steps required are 5500 if control_time_step is 0.005 and action repeat is 5
+
+
+
         if self._is_debug:
-            print(f"Target Position x={self._target_position}, Random assignment: {self._random_pos_target}, Backwards: {self.backwards}")
+            print(f"Target Position x={self._target_position}")
         return self._get_observation()
 
     def setup_ui(self, base_x, step, period):
@@ -312,6 +325,8 @@ class RexWalkEnv(rex_gym_env.RexGymEnv):
         # print(action)
 
         period = 1.0 / 8
+        # period = 0.4
+        # l_a = 0.1
         l_a = 0.1
         f_a = l_a * 2
         if self.goal_reached:

@@ -192,6 +192,7 @@ class RexGymEnv(gym.Env):
         self._objective_weights = [distance_weight, energy_weight, drift_weight, shake_weight]
         self._env_step_counter = 0
 
+        self.max_timesteps_allowed = None
         self.current_position_loss = target_position
 
         self._num_steps_to_log = num_steps_to_log
@@ -410,7 +411,7 @@ class RexGymEnv(gym.Env):
         action = self._transform_action_to_motor_command(action)
         self.rex.Step(action)
         reward = self._reward()
-        done = self._termination() or (self.env_step_counter > 1400) # for 2.5 - 3.5 mtrs
+        done = self._termination() or (self.env_step_counter > self.max_timesteps_allowed) # for 2.5 - 3.5 mtrs
         # done = self._termination()
         # @TODO fix logging
         # if self._log_path is not None:

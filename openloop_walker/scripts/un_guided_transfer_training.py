@@ -22,7 +22,7 @@ HEIGHT_FIELD = False
 CONTACTS = True
 
 
-env = make_vec_env(RexWalkEnv, n_envs=8,)
+env = make_vec_env(RexWalkEnv, n_envs=10)
 
 # env = RexWalkEnv(render=True, debug=False, terrain_id='plane', signal_type='ol', terrain_type='plane')
 # env = RexWalkEnv(render=True)
