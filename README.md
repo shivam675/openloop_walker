@@ -26,7 +26,7 @@ Successful Implementation of Soft Actor Critic with openloop to induce action va
      - currnet_rls_vel, currnet_rle_vel, currnet_rlw_vel 
      - currnet_rrs_vel, currnet_rre_vel, currnet_rrw_vel
  - action space
-     - ls_pos, fle_pos, flw_pos
+     - fls_pos, fle_pos, flw_pos
      - frs_pos, fre_pos, frw_pos
      - rls_pos, rle_pos, rlw_pos
      - rrs_pos, rre_pos, rrw_pos
