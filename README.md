@@ -26,10 +26,14 @@ Successful Implementation of Soft Actor Critic with openloop to induce action va
      - currnet_rls_vel, currnet_rle_vel, currnet_rlw_vel 
      - currnet_rrs_vel, currnet_rre_vel, currnet_rrw_vel
  - action space
+     - action_dims  numpy array of size 12 for 12 motors 
+     - action_high -> 0.2 for every motor 
+     - action_low -> -0.2 for every motor 
      - fls_pos, fle_pos, flw_pos
      - frs_pos, fre_pos, frw_pos
      - rls_pos, rle_pos, rlw_pos
      - rrs_pos, rre_pos, rrw_pos
+     
  - reward function
     - 1.0 x forward reward (current_x / target_postion)*5
     - 2.0 x drift_reward = -abs(current_base_position_y)
