@@ -159,6 +159,7 @@ class RexGymEnv(gym.Env):
         """
         self.mark = mark
         self.num_motors = mark_constants.MARK_DETAILS['motors_num'][self.mark]
+        print(self.num_motors)
         self.motor_velocity_obs_index = MOTOR_ANGLE_OBSERVATION_INDEX + self.num_motors
         self.motor_torque_obs_index = self.motor_velocity_obs_index + self.num_motors
         self.base_orientation_obs_index = self.motor_torque_obs_index + self.num_motors
@@ -403,7 +404,9 @@ class RexGymEnv(gym.Env):
         for env_randomizer in self._env_randomizers:
             env_randomizer.randomize_step(self)
 
+        print(action)
         action = self._transform_action_to_motor_command(action)
+        print(action)
         self.rex.Step(action)
         reward = self._reward()
         done = self._termination() or (self.env_step_counter > 1200)

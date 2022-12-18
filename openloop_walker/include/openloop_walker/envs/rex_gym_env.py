@@ -16,6 +16,9 @@ from gym.utils import seeding
 from openloop_walker.model import rex, motor, mark_constants, rex_constants
 from openloop_walker.model.terrain import Terrain
 from openloop_walker.util import bullet_client
+from scipy.interpolate import interp1d
+from random import randint
+
 
 MOTOR_ANGLE_OBSERVATION_INDEX = 0
 OBSERVATION_EPS = 0.01
@@ -158,6 +161,7 @@ class RexGymEnv(gym.Env):
             Raises:
               ValueError: If the urdf_version is not supported.
         """
+        # self.mapper_object = interp1d([-math.pi, 1], [0, math.pi/2])
         self.mark = mark
         self.num_motors = mark_constants.MARK_DETAILS['motors_num'][self.mark]
         self.motor_velocity_obs_index = MOTOR_ANGLE_OBSERVATION_INDEX + self.num_motors
@@ -193,6 +197,11 @@ class RexGymEnv(gym.Env):
         self._env_step_counter = 0
 
         self.max_timesteps_allowed = None
+        if target_position is None:
+            self._target_position = 10
+        else: 
+            self._target_position = target_position
+
         self.current_position_loss = target_position
 
         self._num_steps_to_log = num_steps_to_log
@@ -253,7 +262,6 @@ class RexGymEnv(gym.Env):
         # envs inputs
         self._target_orient = target_orient
         self._init_orient = init_orient
-        self._target_position = target_position
         self._start_position = start_position
         # computation support params
         self._random_pos_target = False
@@ -290,6 +298,7 @@ class RexGymEnv(gym.Env):
         self.env_goal_reached = False
         self.previous_base_position = (0, 0, 0)
         self.body_x_vel = 0
+        self.body_y_vel = 0
 
     def close(self):
         # @TODO fix logger
@@ -301,6 +310,7 @@ class RexGymEnv(gym.Env):
         self._env_randomizers.append(env_randomizer)
 
     def reset(self, initial_motor_angles=None, reset_duration=1.0):
+        print('I am super reset')
         self.env_goal_reached = False
         
         self._pybullet_client.configureDebugVisualizer(self._pybullet_client.COV_ENABLE_RENDERING, 0)
@@ -514,10 +524,11 @@ class RexGymEnv(gym.Env):
 
     def _reward(self):
         current_base_position = self.rex.GetBasePosition()
-        self.current_position_loss = self._target_position + current_base_position[0]
+        # self.current_position_loss = self._target_position + current_base_position[0]
         self.body_x_vel = (-current_base_position[0] + self.previous_base_position[0])/ self._time_step
-        # self.body_y_vel = (current_base_position[1] - self.previous_base_position[1])/ self._time_step
+        self.body_y_vel = (current_base_position[1] - self.previous_base_position[1])/ self._time_step
         # print(self.body_x_vel)
+        # self.rex.
         # print()
         # print(current_base_position[0])
         # observation = self._get_observation()
@@ -530,15 +541,15 @@ class RexGymEnv(gym.Env):
         # if self._target_position != None:
             # self._target_position = abs(self._target_position)
         #     # 0.15 tolerance
-        if current_x > self._target_position + 0.3:
-            forward_reward = self._target_position - current_x
-        #     elif self._target_position <= current_x <= self._target_position + 0.15:
-        #         forward_reward = 1.0
-        #     # stationary reward must be null: tolerance 5%
-        #     elif current_x <= 0.05:
-        #         forward_reward = 0.0
+        # if current_x > self._target_position + 0.3:
+        #     forward_reward = self._target_position - current_x
+        if self._target_position <= current_x <= self._target_position + 0.30:
+            forward_reward = 10.0
+            # stationary reward must be null: tolerance 5%
+        elif current_x <= 0.05:
+            forward_reward = 0.0
         else:
-            forward_reward = (current_x / self._target_position)*2
+            forward_reward = (current_x / self._target_position)*5
         # else:
         #     # the far the better..
         #     forward_reward = current_x
@@ -568,7 +579,7 @@ class RexGymEnv(gym.Env):
         objectives = [forward_reward, energy_reward, drift_reward, shake_reward]
         weighted_objectives = [o * w for o, w in zip(objectives, self._objective_weights)]
         reward = sum(weighted_objectives)
-        self._objectives.append(objectives)
+        # self._objectives.append(objectives)
         self.previous_base_position = current_base_position
         # print(reward)
         return reward

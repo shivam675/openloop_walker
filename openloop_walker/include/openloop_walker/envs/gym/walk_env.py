@@ -12,6 +12,7 @@ from openloop_walker.model.gait_planner import GaitPlanner
 from openloop_walker.model.kinematics import Kinematics
 import random
 
+
 NUM_LEGS = 4
 
 
@@ -45,15 +46,15 @@ class RexWalkEnv(rex_gym_env.RexGymEnv):
                  num_steps_to_log=0,
                  env_randomizer=None,
                  log_path=None,
-                #  target_position=10,
+                #  target_position=random.randint(1, 15),
                  target_position=None,
                  backwards=False,
                 #  backwards=True,
                  signal_type="ol",
-                #  terrain_type="plane",
-                 terrain_type="random",
-                #  terrain_id='plane',
-                 terrain_id='random',
+                 terrain_type="plane",
+                #  terrain_type="random",
+                 terrain_id='plane',
+                #  terrain_id='random',
                  mark='base'):
         """Initialize the rex alternating legs gym environment.
 
@@ -124,6 +125,11 @@ class RexWalkEnv(rex_gym_env.RexGymEnv):
         }
         action_dim = action_dim_map[self._signal_type]
         action_high = np.array([action_max[self._signal_type]] * action_dim)
+        
+        # action_low = np.array([-1.04,-math.pi/2, 0, 1.04,-math.pi/2, 0, 1.04,-math.pi/2, 0, 1.04,-math.pi/2, 0])
+        # action_high = np.array([1.04,math.pi/2, math.pi, 1.04,math.pi/2, math.pi, 1.04,math.pi/2, math.pi, 1.04,math.pi/2, math.pi])
+
+        # self.action_space = spaces.Box(-action_low, action_high)
         self.action_space = spaces.Box(-action_high, action_high)
         self._cam_dist = 1.0
         self._cam_yaw = 0.0
@@ -135,12 +141,14 @@ class RexWalkEnv(rex_gym_env.RexGymEnv):
         self._stay_still = False
         self.is_terminating = False
         self.body_x_vel = 0
+        self.body_y_vel = 0
         self.current_position_loss = None
 
 
     def reset(self):
         self.init_pose = rex_constants.INIT_POSES["stand"]
         self.body_x_vel = 0
+        self.body_y_vel = 0
         if self._signal_type == 'ol':
             self.init_pose = rex_constants.INIT_POSES["stand_ol"]
         super(RexWalkEnv, self).reset(initial_motor_angles=self.init_pose, reset_duration=0.5)
@@ -167,16 +175,16 @@ class RexWalkEnv(rex_gym_env.RexGymEnv):
         #     if self.load_ui:
         #         self.setup_ui(base_x, step, period)
         #         self.load_ui = False
-        distance = random.randint(1, 30)
-        self._target_position = distance
+        # distance = random.randint(1, 30)
+        # self._target_position = distance
+
         self.current_position_loss = self._target_position
         
-        if distance <= 6:
-            self.max_timesteps_allowed = (5500/20)*distance + 350
+        if self._target_position <= 6:
+            self.max_timesteps_allowed = (5500/20)*self._target_position + 350
         
         else:
-            self.max_timesteps_allowed = (5500/20)*distance  # for 20 mtrs time steps required are 5500 if control_time_step is 0.005 and action repeat is 5
-
+            self.max_timesteps_allowed = (5500/20)*self._target_position  # for 20 mtrs time steps required are 5500 if control_time_step is 0.005 and action repeat is 5
 
 
         if self._is_debug:
@@ -417,8 +425,10 @@ class RexWalkEnv(rex_gym_env.RexGymEnv):
         # forward_vel = self.rex.GetBasePosition()
         observation = []
         roll, pitch, _ = self.rex.GetBaseRollPitchYaw()
+        # self.rex.Get
         roll_rate, pitch_rate, _ = self.rex.GetBaseRollPitchYawRate()
-        observation.extend([self.body_x_vel, self.current_position_loss])
+        # roll_rate, pitch_rate, _ = self.rex.GetBaseRollPitchYawRate
+        observation.extend([self.body_x_vel, self.body_y_vel])
         observation.extend([roll, pitch, roll_rate, pitch_rate])
         # motor_angles = self.rex.GetMotorAngles().tolist()
         # print(self.current_position_loss)
@@ -426,6 +436,8 @@ class RexWalkEnv(rex_gym_env.RexGymEnv):
         # print(motor_angles)
         # print('hi')
         observation.extend(self.rex.GetMotorAngles().tolist())
+        # observation.extend(int(math.degrees(int(self.mapper_object(x)))) for x in self.rex.GetMotorAngles().tolist())
+        # observation.extend(int(math.degrees(x)) for x in self.rex.GetMotorAngles().tolist())
         observation.extend(self.rex.GetMotorVelocities().tolist())
         self._observation = np.array(observation)
         return self._observation
@@ -438,8 +450,8 @@ class RexWalkEnv(rex_gym_env.RexGymEnv):
         of each element of an observation.
     """
         upper_bound = np.zeros(self._get_observation_dimension())
-        upper_bound[0] = 3 * math.pi  # Roll, pitch, yaw of the base.
-        upper_bound[1] = np.inf  # Roll, pitch, yaw of the base.
+        upper_bound[:2] = 3 * math.pi  # linear_velocities x, y
+        # upper_bound[1] = np.inf  # Roll, pitch, yaw of the base.
         upper_bound[2:4] = 2 * math.pi  # Roll, pitch, yaw of the base.
         upper_bound[4:6] = 2 * math.pi / self._time_step  # Roll, pitch, yaw rate.
         upper_bound[6:18] = math.pi
