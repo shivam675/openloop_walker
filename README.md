@@ -1,7 +1,7 @@
 # sac_openloop_walker
 Successful Implementation of Soft Actor Critic with openloop to induce action values to generate gait
 
-## Getting started
+## Getting acquainted with reinforcement learning on quarduped.
  - start with openloop_walker package
     - It contains all the reinforcement learning scripts and stable models
     - 9m and 8m models in final_models folder in this package are the most stable ones
@@ -33,6 +33,8 @@ Successful Implementation of Soft Actor Critic with openloop to induce action va
      - frs_pos, fre_pos, frw_pos
      - rls_pos, rle_pos, rlw_pos
      - rrs_pos, rre_pos, rrw_pos
+     -
+     - openloop generates walking gate at any given time t and then we add model generated action values to the generated gate. Final values are sent to simulation to train.
      
  - reward function
     - 1.0 x forward reward (current_x / target_postion)*5
@@ -40,5 +42,12 @@ Successful Implementation of Soft Actor Critic with openloop to induce action va
     - 0.005 x shake_reward
     - 0.0005 x energy_consumption_reward
 
+ - Training Scripts
+     - use train_v2.py for training SAC model
+     - arch of the model is defined there itself
+ - Testing script
+     - test.py is our testing script
+     - use deterministic = False flag in model.predict
+ - 
  
 
